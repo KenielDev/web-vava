@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Tungsten-Bold, arial, georgia, sans-serif;
+}
+
+@font-face {
+  font-family: "Tungsten-Bold";
+  src: url("../public//util/Tungsten-Bold.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
