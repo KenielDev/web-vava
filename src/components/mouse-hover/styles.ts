@@ -1,12 +1,5 @@
 import styled from "styled-components";
-import { TooltipProps } from "./TooltipSlider";
 import { Bounce } from "../Layout/styles";
-
-export const WrapperTooltip = styled.div<TooltipProps>`
-  position: absolute;
-  left: ${(props) => props.x};
-  top: ${(props) => props.y};
-`;
 
 interface ImageProps {
   rotate?: boolean;

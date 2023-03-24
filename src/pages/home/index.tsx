@@ -1,22 +1,13 @@
 import React, { useEffect, useState } from "react";
 import "../../App.css";
-import CardAgents from "../../components/agents/CardAgents";
 import { getAllAgents } from "../../api/agents";
 import WrapperBody from "../../components/Layout/WrapperBody";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import VerticalMode from "../../components/carrossel/Vertical";
-import { ButtonTitleAgent } from "../../components/agents/styles";
-import {
-  Container,
-  RowColumn,
-  CenterView,
-} from "../../components/Layout/styles";
-import {
-  Heptagon,
-  SvgArrow,
-  WrapperTooltip,
-} from "../../components/mouse-hover/styles";
+import Container from "../../components/Layout/Container";
+import { ButtonTitleAgent } from "../../components/buttons/ButtonTitleAgent";
+import { TooltipSlider } from "../../components/mouse-hover/TooltipSlider";
 
 function App() {
   const [agentsData, setAgentsData] = useState<any>([]);
@@ -48,65 +39,47 @@ function App() {
 
   useEffect(() => {
     getAllAgents().then((response) => {
+      const randomIndex = Math.floor(Math.random() * response.data.data.length);
+      const randomAgent = response.data.data[randomIndex];
+      setActiveAgent(randomAgent);
       setAgentsData(response.data.data);
     });
   }, []);
 
   return (
     <WrapperBody>
-      <Container
-        onMouseMove={onMouseMove}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        <CenterView>
-          <RowColumn>
-            <CenterView className="w-[40%] h-1/2 items-center justify-center flex m-auto">
-              <VerticalMode>
-                {agentsData.map((agent: any) => {
-                  return (
-                    <ButtonTitleAgent
-                      onClick={() => setAgent(agent.displayName)}
-                    >
-                      {agent.displayName}
-                    </ButtonTitleAgent>
-                  );
-                })}
-              </VerticalMode>
-            </CenterView>
+      <Container>
+        <div className="flex items-center">
+          <div
+            onMouseMove={onMouseMove}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <VerticalMode>
+              {agentsData.map((agent: any) => {
+                return (
+                  <ButtonTitleAgent
+                    onClick={() => setAgent(agent.displayName)}
+                    key={agent.uuid}
+                  >
+                    {agent.displayName}
+                  </ButtonTitleAgent>
+                );
+              })}
+            </VerticalMode>
+          </div>
 
-            {
-              <img
-                className="w-full"
-                src={activeAgent.fullPortrait}
-                alt="agente"
-              />
-            }
-          </RowColumn>
-        </CenterView>
+          {
+            <img
+              className="w-1/2"
+              src={activeAgent.fullPortrait}
+              alt="agente"
+            />
+          }
+        </div>
 
         {isMouseOverParent && (
-          <WrapperTooltip
-            x={1}
-            y={2}
-            style={{
-              position: "absolute",
-              left: mousePosition.x - 44,
-              top: mousePosition.y - 40,
-              pointerEvents: "none",
-            }}
-          >
-            <Heptagon>
-              <RowColumn flexDirection="column">
-                <CenterView>
-                  <SvgArrow rotate={true} src="/img/valorant-arrow.svg" />
-                </CenterView>
-                <CenterView>
-                  <SvgArrow src="/img/valorant-arrow.svg" />
-                </CenterView>
-              </RowColumn>
-            </Heptagon>
-          </WrapperTooltip>
+          <TooltipSlider x={mousePosition.x} y={mousePosition.y} />
         )}
       </Container>
 

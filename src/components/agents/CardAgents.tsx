@@ -26,7 +26,7 @@ export default function CardAgents({
         backgroundRepeat: "no-repeat",
         backgroundColor: "#333333",
       }}
-      className="h-[400px]  rounded-tl-xl border border-black w-full  relative"
+      className="h-[400px] rounded-tl-xl border border-black w-full  relative"
     >
       <div
         style={{ WebkitTextStroke: "1px #fff" }}
