@@ -1,26 +1,22 @@
 import React, { useEffect, useState } from "react";
 import "../../App.css";
 import { getAllAgents } from "../../api/agents";
-import WrapperBody from "../../components/Layout/WrapperBody";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import VerticalMode from "../../components/carrossel/Vertical";
 import Container from "../../components/Layout/Container";
 import { ButtonTitleAgent } from "../../components/buttons/ButtonTitleAgent";
-import { TooltipSlider } from "../../components/mouse-hover/TooltipSlider";
+import AgentBio from "../../components/agents/AgentBio";
+import { Heptagon, SvgArrow } from "../../components/mouse-hover/styles";
 
 function App() {
   const [agentsData, setAgentsData] = useState<any>([]);
-  console.log("🚀 ~ file: index.tsx:23 ~ App ~ agentsData:", agentsData);
-
   const [activeAgent, setActiveAgent] = useState<any>([]);
-  console.log("🚀 ~ file: index.tsx:27 ~ App ~ activeAgent:", activeAgent);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMouseOverParent, setIsMouseOverParent] = useState(false);
 
   function setAgent(agentName: string) {
     const selectedAgent = agentsData.find(
-      (agent: any) => agentName === agent.displayName
+      (agent: any) => agentName === agent?.displayName
     );
     setActiveAgent(selectedAgent);
   }
@@ -33,10 +29,6 @@ function App() {
     setIsMouseOverParent(false);
   };
 
-  const onMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    setMousePosition({ x: event.clientX, y: event.clientY });
-  };
-
   useEffect(() => {
     getAllAgents().then((response) => {
       const randomIndex = Math.floor(Math.random() * response.data.data.length);
@@ -45,63 +37,105 @@ function App() {
       setAgentsData(response.data.data);
     });
   }, []);
+  const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
+
+  function FollowMouse() {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          left: mouseCoords.x - 48,
+          top: mouseCoords.y - 48,
+        }}
+      >
+        {isMouseOverParent && (
+          <Heptagon>
+            <div className="flex items-center h-full gap-2 justify-center flex-col">
+              <div className="animate-up">
+                <SvgArrow rotate={true} src="/img/valorant-arrow.svg" />
+              </div>
+
+              <div className="animate-down mt-1">
+                <SvgArrow src="/img/valorant-arrow.svg" />
+              </div>
+            </div>
+          </Heptagon>
+        )}
+      </div>
+    );
+  }
+
+  const handleMouseMove = (e: any) => {
+    setMouseCoords({ x: e.clientX, y: e.clientY });
+  };
 
   return (
-    <WrapperBody>
-      <Container>
-        <div className="flex items-center">
-          <div
-            onMouseMove={onMouseMove}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
-            <VerticalMode>
-              {agentsData.map((agent: any) => {
-                return (
-                  <ButtonTitleAgent
-                    onClick={() => setAgent(agent.displayName)}
-                    key={agent.uuid}
-                  >
-                    {agent.displayName}
-                  </ButtonTitleAgent>
-                );
-              })}
-            </VerticalMode>
+    <div
+      style={{
+        backgroundImage: `url("/img/background.png")`,
+        backgroundPosition: "center",
+        backgroundSize: "auto",
+        backgroundRepeat: "no-repeat",
+      }}
+      className="relative overflow-hidden w-screen h-screen text-white"
+    >
+      <div
+        onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <FollowMouse />
+      </div>
+      <video className="w-full" preload="true" muted loop autoPlay>
+        <source
+          src="https://assets.contentstack.io/v3/assets/bltb6530b271fddd0b1/blt29d7c4f6bc077e9e/5eb26f54402b8b4d13a56656/agent-background-generic.mp4"
+          type="video/mp4"
+        />
+      </video>
+      <div className="absolute bottom-80 3xl:bottom-[50%]">
+        <Container>
+          <div className="flex w-full items-center">
+            <div className="w-1/3">
+              <div
+                style={{ width: "100vw" }}
+                onMouseMove={handleMouseMove}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <VerticalMode>
+                  {agentsData.map((agent: any) => {
+                    return (
+                      <ButtonTitleAgent
+                        onClick={() => setAgent(agent?.displayName)}
+                        key={agent.uuid}
+                      >
+                        {agent?.displayName}
+                      </ButtonTitleAgent>
+                    );
+                  })}
+                </VerticalMode>
+              </div>
+            </div>
+
+            <div className="w-2/3 flex relative">
+              <img
+                className="w-full absolute -top-80 right-20"
+                src={activeAgent.fullPortrait}
+                alt="agente"
+              />
+              {/* <SkillsBox skills={activeAgent.abilities} /> */}
+
+              <div className="absolute -top-56 -right-32 w-1/2">
+                <AgentBio
+                  classAgent={activeAgent.role?.displayName}
+                  bio={activeAgent.description}
+                />
+              </div>
+            </div>
           </div>
-
-          {
-            <img
-              className="w-1/2"
-              src={activeAgent.fullPortrait}
-              alt="agente"
-            />
-          }
-        </div>
-
-        {isMouseOverParent && (
-          <TooltipSlider x={mousePosition.x} y={mousePosition.y} />
-        )}
-      </Container>
-
-      {/* <div className="grid grid-cols-4 h-full gap-10 mx-auto w-3/4 mt-10">
-        {agentsData.map((agent: any) => {
-          const colors = agent.backgroundGradientColors;
-
-          const gradient = `linear-gradient(to bottom right, #${colors[0]}, #${colors[1]}, #${colors[2]}, #${colors[3]})`;
-          return (
-            <CardAgents
-              gradient={gradient}
-              bgImage={agent.background}
-              key={agent.uuid}
-              image={agent.fullPortraitV2}
-              name={agent.displayName}
-              country={""}
-              skills={[]}
-            />
-          );
-        })}
-      </div> */}
-    </WrapperBody>
+        </Container>
+      </div>
+    </div>
   );
 }
 
